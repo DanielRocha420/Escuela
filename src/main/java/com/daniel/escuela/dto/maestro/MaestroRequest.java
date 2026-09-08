@@ -1,51 +1,35 @@
 package com.daniel.escuela.dto.maestro;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 
-@Schema(description = "Datos necesarios para crear o actualizar un Maestro")
+@Schema(description = "Datos necesarios para registrar o actualizar un maestro")
 public record MaestroRequest(
-        @Schema(
-                description = "Nombre del maestro",
-                example = "JOSE"
-        )
-        @NotBlank(message = "El nombre es requerido")
-        @Size(min = 5, max = 50, message = "El nombre debe tener 5 y 50 caracteres")
+
+        @Schema(description = "Nombre del maestro", example = "Miguel")
+        @NotNull(message = "El nombre es requerido")
+        @Size(max = 50, message = "El nombre no puede exceder 50 caracteres")
         String nombre,
 
-        @Schema(
-                description = "Apellido paterno del maestro",
-                example = "Hernandez"
-        )
+        @Schema(description = "Apellido Paterno del maestro", example = "Romero")
         @NotBlank(message = "El apellido paterno es requerido")
-        @Size(min = 5, max = 50, message = "El apellido paterno debe tener 5 y 50 caracteres")
-        String apPaterno,
+        @Size(max = 50, message = "El apellido paterno no puede exceder 50 caracteres")
+        String apellidoPaterno,
 
-        @Schema(
-                description = "Apellido materno del maestro",
-                example = "Juarez"
-        )
+        @Schema(description = "Apellido Materno del maestro", example = "Alcantara")
         @NotBlank(message = "El apellido materno es requerido")
-        @Size(min = 5, max = 50, message = "El apellido paterno debe tener 5 y 50 caracteres")
-        String apMaterno,
+        @Size(max = 50, message = "El apellido materno no puede exceder 50 caracteres")
+        String apellidoMaterno,
 
-        @Schema(
-                description = "El Email del maestro",
-                example = "tr.2026.jose.hernandez.juarez.pegoju2601@escuela.com.mx"
-        )
+        @Schema(description = "Email del maestro", example = "test@test.com")
         @NotBlank(message = "El email es requerido")
-        @Size(min = 5, max = 50, message = "El email debe tener 5 y 50 caracteres")
+        @Email(message = "El email debe tener un formato valido")
+        @Size(max = 100, message = "El email no puede exceder 100 caracteres")
         String email,
 
-        @Schema(
-                description = "El telefono del maestro",
-                example = "1234567890"
-        )
+        @Schema(description = "Telefono del maestro", example = "1234567890")
         @NotBlank(message = "El telefono es requerido")
-        @Size(min = 5, max = 50, message = "El telefono debe tener 5 y 50 caracteres")
+        @Size(max = 10, message = "El telefono no puede exceder 10 caracteres")
         String telefono
-
-
 ) {
 }
