@@ -24,4 +24,12 @@ public class ValoresNumericosUtils {
         if (numero.compareTo(BigDecimal.ZERO) < 0)
             throw new IllegalArgumentException(mensaje);
     }
+
+    public static void validarEnteroMayorAZero(Integer entero, String mensaje) {
+        validarNumeroRequerido(entero);
+
+        if (entero <= 0) {
+            throw new IllegalArgumentException(mensaje);
+        }
+    }
 }
