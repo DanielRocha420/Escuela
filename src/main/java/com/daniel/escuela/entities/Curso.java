@@ -8,6 +8,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "CURSOS")
 @AllArgsConstructor
@@ -28,6 +31,10 @@ public class Curso {
 
     @Column(name = "CREDITOS", nullable = false)
     private Integer creditos;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "curso", fetch = FetchType.LAZY)
+    private List<Grupo> grupos = new ArrayList<>();
 
     private void validarDatos(String nombre, String descripcion, Integer creditos){
         StringCustomUtils.validarTamanio(nombre,1,100,"El nombre del curso es requerido y debe tener entre 1 y 100");

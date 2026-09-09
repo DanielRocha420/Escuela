@@ -14,7 +14,7 @@ public class StringCustomUtils {
         }
     }
 
-    public static void validarTamanio(String mensaje, Integer min, Integer max, String texto) {
+    public static void validarTamanio(String texto, Integer min, Integer max, String mensaje) {
         validarNoVacio(texto, mensaje);
 
         if (texto.length() < min || texto.length() > max) {
