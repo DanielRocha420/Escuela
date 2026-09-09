@@ -33,7 +33,7 @@ public class CursoMapper implements CommonMapper<CursoRequest, CursoResponse, Cu
                 entidad.getCreditos());
     }
 
-    // Cambiado de CursoResponse a DatosCurso en el tipo de retorno
+
     public DatosCurso entidadADatosCurso(Curso entidad) {
         if (entidad == null) return null;
 

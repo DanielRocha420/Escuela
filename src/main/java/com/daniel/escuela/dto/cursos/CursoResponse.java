@@ -1,20 +1,18 @@
 package com.daniel.escuela.dto.cursos;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.*;
 
 public record CursoResponse(
-        @Schema(description = "ID del curso", example = "1")
+        @Schema(description = "ID único del curso", example = "1")
         Long id,
 
-        @Schema(description = "Nombre del curso", example = "Matematicas 1")
+        @Schema(description = "Nombre del curso", example = "Matemáticas I")
         String nombre,
 
-        @Schema(description = "Descripcion del curso", example = "Calculo integral")
-
+        @Schema(description = "Descripción del curso", example = "Cálculo integral y diferencial básico")
         String descripcion,
 
-        @Schema(description = "creditos del curso", example = "1")
+        @Schema(description = "Créditos del curso", example = "6")
         Integer creditos
 ) {
 }
