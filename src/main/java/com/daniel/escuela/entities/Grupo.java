@@ -6,16 +6,16 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
-@Table(name = "Grupos", uniqueConstraints = @UniqueConstraint(
-        name = "GRUPO_CU_MA_AU_PE_UK",
-        columnNames = { "ID_CURSO", "ID_MAESTRO", "ID_AULA", "PERIODO"}
-))
+@Table(name = "GRUPOS")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Getter
 public class Grupo {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID_GRUPO")
@@ -33,6 +33,12 @@ public class Grupo {
     @JoinColumn(name = "ID_AULA", nullable = false)
     private Aula aula;
 
-    @Column(name = "PERIODO", length = 20, nullable = false)
+    @Column(name = "PERIODO", nullable = false)
     private String periodo;
+
+    @OneToMany(mappedBy = "grupo", fetch = FetchType.LAZY)
+    private List<Horario> horarios;
+
+    @OneToMany(mappedBy = "grupo", fetch = FetchType.LAZY)
+    private List<Inscripcion> inscripciones;
 }

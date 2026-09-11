@@ -8,6 +8,8 @@ import com.daniel.escuela.entities.Horario;
 import com.daniel.escuela.enums.DiaSemana;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalTime;
+
 @Component
 public class HorarioMapper implements CommonMapper<HorarioRequest, HorarioResponse, Horario> {
 
@@ -15,14 +17,14 @@ public class HorarioMapper implements CommonMapper<HorarioRequest, HorarioRespon
     public Horario requestAEntidad(HorarioRequest request) {
         if (request == null) return null;
 
-        DiaSemana diaEnum = request.dia() != null
+        DiaSemana diaEnum = (request.dia() != null && !request.dia().trim().isEmpty())
                 ? DiaSemana.valueOf(request.dia().toUpperCase().trim())
                 : null;
 
         return Horario.builder()
                 .diaSemana(diaEnum)
-                .horaInicio(request.horaInicio() != null ? request.horaInicio().trim() : null)
-                .horaFin(request.horaFin() != null ? request.horaFin().trim() : null)
+                .horaInicio(parsearHora(request.horaInicio()))
+                .horaFin(parsearHora(request.horaFin()))
                 .build();
     }
 
@@ -34,9 +36,14 @@ public class HorarioMapper implements CommonMapper<HorarioRequest, HorarioRespon
         DatosHorario datosGrupo = null;
 
         if (grupo != null) {
-            String nombreMaestro = (grupo.getMaestro() != null)
-                    ? (grupo.getMaestro().getNombre() + " " + grupo.getMaestro().getApellidoPaterno() + " " + grupo.getMaestro().getApellidoMaterno()).trim()
-                    : null;
+            String nombreMaestro = null;
+            if (grupo.getMaestro() != null) {
+                var m = grupo.getMaestro();
+                nombreMaestro = String.format("%s %s %s",
+                        m.getNombre() != null ? m.getNombre() : "",
+                        m.getApellidoPaterno() != null ? m.getApellidoPaterno() : "",
+                        m.getApellidoMaterno() != null ? m.getApellidoMaterno() : "").trim();
+            }
 
             datosGrupo = new DatosHorario(
                     grupo.getCurso() != null ? grupo.getCurso().getNombre() : null,
@@ -47,12 +54,19 @@ public class HorarioMapper implements CommonMapper<HorarioRequest, HorarioRespon
         }
 
         String diaNombre = entidad.getDiaSemana() != null ? entidad.getDiaSemana().name() : "";
-        String horarioString = (diaNombre + " " + entidad.getHoraInicio() + " " + entidad.getHoraFin()).trim();
+        String horarioString = (diaNombre + " " + entidad.getHoraInicio() + " - " + entidad.getHoraFin()).trim();
 
         return new HorarioResponse(
                 entidad.getId(),
                 datosGrupo,
                 horarioString
         );
+    }
+
+    private LocalTime parsearHora(String hora) {
+        if (hora == null || hora.trim().isEmpty()) {
+            return null;
+        }
+        return LocalTime.parse(hora.trim());
     }
 }
