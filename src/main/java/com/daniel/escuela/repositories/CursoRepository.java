@@ -17,4 +17,5 @@ public interface CursoRepository extends JpaRepository<Curso, Long> {
 
     // Validación de unicidad ignorando el ID propio (para actualización)
     boolean existsByNombreIgnoreCaseAndIdNot(String nombre, Long id);
+
 }

@@ -1,12 +1,15 @@
 package com.daniel.escuela.entities;
 
 import com.daniel.escuela.enums.DiaSemana;
-import com.daniel.escuela.utils.StringCustomUtils;
+import com.daniel.escuela.utils.LocalTimeAttributeConverter;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalTime;
 
 @Entity
 @Table(name = "HORARIOS")
@@ -14,6 +17,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 @Getter
+@Setter
 public class Horario {
 
     @Id
@@ -29,25 +33,15 @@ public class Horario {
     @Column(name = "DIA", nullable = false)
     private DiaSemana diaSemana;
 
-    @Column(name = "HORA_INICIO", length = 5, nullable = false)
-    private String horaInicio;
+    @Convert(converter = LocalTimeAttributeConverter.class)
+    @Column(name = "HORA_INICIO", nullable = false, length = 5)
+    private LocalTime horaInicio;
 
-    @Column(name = "HORA_FIN", length = 5, nullable = false)
-    private String horaFin;
+    @Convert(converter = LocalTimeAttributeConverter.class)
+    @Column(name = "HORA_FIN", nullable = false, length = 5)
+    private LocalTime horaFin;
 
-    private void validarDatos(Grupo grupo, DiaSemana diaSemana, String horaInicio, String horaFin) {
-        if (grupo == null) {
-            throw new IllegalArgumentException("El grupo es requerido");
-        }
-        if (diaSemana == null) {
-            throw new IllegalArgumentException("El dia de la semana es requerido");
-        }
-        StringCustomUtils.validarTamanio(horaInicio, 5,5,"La hora de inicio debe tener el formato HH:mm");
-        StringCustomUtils.validarTamanio(horaFin,5,5,"La hora de fin debe tener el formato HH:mm");
-    }
-
-    public void actualizar(Grupo grupo, DiaSemana diaSemana, String horaInicio, String horaFin) {
-        validarDatos(grupo, diaSemana, horaInicio, horaFin);
+    public void actualizar(Grupo grupo, DiaSemana diaSemana, LocalTime horaInicio, LocalTime horaFin) {
         this.grupo = grupo;
         this.diaSemana = diaSemana;
         this.horaInicio = horaInicio;

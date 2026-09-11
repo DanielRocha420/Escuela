@@ -22,7 +22,7 @@ import java.util.List;
 @AllArgsConstructor
 @Transactional
 @Slf4j
-public class HorarioServiceImpl implements HorarioService{
+public class HorarioServiceImpl implements HorarioService {
 
     private final HorarioRepository horarioRepository;
     private final GrupoRepository grupoRepository;
@@ -32,8 +32,9 @@ public class HorarioServiceImpl implements HorarioService{
     @Transactional(readOnly = true)
     public List<HorarioResponse> listar() {
         log.info("Listando horarios...");
-        return horarioRepository.findAll().stream()
-                .map(horarioMapper::entidadAResponse).toList();
+        return horarioRepository.findAllWithRelaciones().stream()
+                .map(horarioMapper::entidadAResponse)
+                .toList();
     }
 
     @Override
@@ -49,13 +50,23 @@ public class HorarioServiceImpl implements HorarioService{
         Grupo grupo = ServiceUtils.obtenerEntidadException(grupoRepository, request.idGrupo(), Grupo.class);
         DiaSemana dia = DiaSemana.valueOf(request.dia().toUpperCase().trim());
 
-        validarHoras(request.horaInicio(), request.horaFin());
+
+        LocalTime inicio = parsearHora(request.horaInicio());
+        LocalTime fin = parsearHora(request.horaFin());
+
+
+        if (!fin.isAfter(inicio)) {
+            throw new IllegalArgumentException("La hora de fin debe ser posterior a la hora de inicio");
+        }
+
+
+        validarTraslapes(grupo, dia, inicio, fin, null);
 
         Horario horario = Horario.builder()
                 .grupo(grupo)
                 .diaSemana(dia)
-                .horaInicio(request.horaInicio())
-                .horaFin(request.horaFin())
+                .horaInicio(inicio)
+                .horaFin(fin)
                 .build();
 
         horarioRepository.save(horario);
@@ -72,9 +83,17 @@ public class HorarioServiceImpl implements HorarioService{
         Grupo grupo = ServiceUtils.obtenerEntidadException(grupoRepository, request.idGrupo(), Grupo.class);
         DiaSemana dia = DiaSemana.valueOf(request.dia().toUpperCase().trim());
 
-        validarHoras(request.horaInicio(), request.horaFin());
+        LocalTime inicio = parsearHora(request.horaInicio());
+        LocalTime fin = parsearHora(request.horaFin());
 
-        horario.actualizar(grupo, dia, request.horaInicio(), request.horaFin());
+        if (!fin.isAfter(inicio)) {
+            throw new IllegalArgumentException("La hora de fin debe ser posterior a la hora de inicio");
+        }
+
+
+        validarTraslapes(grupo, dia, inicio, fin, id);
+
+        horario.actualizar(grupo, dia, inicio, fin);
         log.info("Horario con id {} actualizado correctamente", id);
 
         return horarioMapper.entidadAResponse(horario);
@@ -86,24 +105,28 @@ public class HorarioServiceImpl implements HorarioService{
         log.info("Eliminando horario con id: {}", id);
         horarioRepository.delete(horario);
         log.info("Horario con id {} eliminado correctamente", id);
-
     }
 
     private Horario obtenerHorario(Long id) {
         return ServiceUtils.obtenerEntidadException(horarioRepository, id, Horario.class);
     }
 
-    private void validarHoras(String inicioStr, String finStr) {
+    private LocalTime parsearHora(String horaTexto) {
         try {
-            LocalTime inicio = LocalTime.parse(inicioStr.trim());
-            LocalTime fin = LocalTime.parse(finStr.trim());
-
-            if (!fin.isAfter(inicio)) {
-                throw new IllegalArgumentException("La hora de fin debe ser posterior a la hora de inicio");
-            }
+            return LocalTime.parse(horaTexto.trim());
         } catch (DateTimeParseException e) {
             throw new IllegalArgumentException("Formato de hora inválido. Debe ser HH:mm (ej. 08:00)");
         }
     }
 
+
+    private void validarTraslapes(Grupo grupo, DiaSemana dia, LocalTime inicio, LocalTime fin, Long idHorarioActual) {
+
+        if (horarioRepository.existeEmpalmeAula(grupo.getAula().getId(), grupo.getPeriodo(), dia, inicio, fin, idHorarioActual)) {
+            throw new IllegalArgumentException("El aula " + grupo.getAula().getNombre() + " ya está ocupada el " + dia + " a esa hora.");
+        }
+        if (horarioRepository.existeEmpalmeMaestro(grupo.getMaestro().getId(), grupo.getPeriodo(), dia, inicio, fin, idHorarioActual)) {
+            throw new IllegalArgumentException("El maestro ya tiene una clase asignada el " + dia + " a esa hora.");
+        }
+    }
 }
